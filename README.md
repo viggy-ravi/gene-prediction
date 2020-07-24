@@ -15,16 +15,10 @@ In the last step, a neural network is trained on fragmented data.
 
 
 Summary of features:
-
-x1 - tricodon       - (n,64)   --reduced to a weights matrix of (64,1)
-x2 - hexcodon       - (n,4096) --reduced to a weights matrix of (4096,1)
-
-x3 - positive TIS   - (n,58,64 == n,3712) --reduced to a weights matrix of (3712,1)
-
-x4 - negative TIS   - (m,58,64 == m,3712) --reduced to a weights matrix of (3712,1)
-
-x5 - complete seq   - 1 if fragment contains a complete gene, else 0
-
-x6 - incomplete seq - 0 if fragment contains a complete gene, else 1
-
-x7 - GC content     - (n,1)
+  x1 - tricodon       - (n,64)   --reduced to a weights matrix of (64,1)
+  x2 - hexcodon       - (n,4096) --reduced to a weights matrix of (4096,1)
+  x3 - positive TIS   - (n,58,64 == n,3712) --reduced to a weights matrix of (3712,1)
+  x4 - negative TIS   - (m,58,64 == m,3712) --reduced to a weights matrix of (3712,1)
+  x5 - complete seq   - 1 if fragment contains a complete gene, else 0
+  x6 - incomplete seq - 0 if fragment contains a complete gene, else 1
+  x7 - GC content     - (n,1)
