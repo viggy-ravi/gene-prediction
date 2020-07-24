@@ -2,7 +2,8 @@
 
 Written by: Vignesh Ravindranath, Shawn Huang
 
-This project was based on the 2008 paper 'Gene prediction in metagenomic fragments: A large scale machine learning approach' by Hoff et at (see link below). The purpose of the project is to gain a deeper understanding of machine learning approaches and bioinformatics concepts.
+This project was based on the 2008 paper 'Gene prediction in metagenomic fragments: A large scale machine learning approach' by Hoff et at. The purpose of the project is to create a machine learning algorithm to predict potentially novel and known genes in microbial genomes. The independent project also served to gain a deeper understanding of machine learning approaches and bioinformatics concepts.
+
 The project consists of three main steps:
 1) Feature engineering/extraction
 2) Linear Discriminant training on high-dimentional features
@@ -16,7 +17,6 @@ In the last step, a neural network is trained on fragmented data.
 Summary of features:
 
 x1 - tricodon       - (n,64)   --reduced to a weights matrix of (64,1)
-
 x2 - hexcodon       - (n,4096) --reduced to a weights matrix of (4096,1)
 
 x3 - positive TIS   - (n,58,64 == n,3712) --reduced to a weights matrix of (3712,1)
