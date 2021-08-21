@@ -11,7 +11,6 @@ from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.SeqFeature import SeqFeature, FeatureLocation
 from Bio import Entrez
-Entrez.email = "vignesh.ravindranath@gmail.com"
 
 START_CODONS = ['ATG','CTG','GTG','TTG']
 STOP_CODONS = ['TAG','TGA','TAA']
@@ -33,13 +32,13 @@ def fetch_genome(prokaryote_id):
     handle = Entrez.efetch(db="sequences", id=prokaryote_id, rettype="gbwithparts", retmode="text")
     seq_record = SeqIO.read(handle, "gb")
     handle.close()
-    print(f'Fetched {prokaryote_id} GenBank sequence')
-
+    
     # full sequence from FASTA file
     handle = Entrez.efetch(db="sequences", id=prokaryote_id, rettype="fasta", retmode="text")
     sequence = SeqIO.read(handle, "fasta")
     handle.close()
-    print(f'Fetched {prokaryote_id} FASTA sequence')
+    
+    print(f'Fetched {prokaryote_id} GenBank records and FASTA sequence')
     
     return seq_record, sequence
 
