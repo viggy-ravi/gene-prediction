@@ -1,26 +1,31 @@
 # gene-prediction
 
-  Written by: Vignesh Ravindranath, Shawn Huang
+## Introduction
 
-  This project was based on the 2008 paper 'Gene prediction in metagenomic fragments: A large scale machine learning approach' by Hoff et at. The purpose of the project is to create a machine learning algorithm to predict potentially novel and known genes in microbial genomes. The independent project also served to gain a deeper understanding of machine learning approaches and bioinformatics concepts.
+This project was based on the 2008 paper ['Gene prediction in metagenomic fragments: A large scale machine learning approach'](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-217) by Hoff et at. My intentions for starting this project were to gain a deeper understanding of machine learning approaches behind the `Orphelia gene prediction algorithm` and sharpen my programming skills. 
+    
+The project consists of several sections:
+1. Preprocess Genome (extract coding sequences/noncoding sequences, shuffle/split data)
+2. Extract Features (monocodon frequency, dicodon frequency, tis, gc)
+3. Linear Discriminant - Dimentionality reduction on high dimensional features
+4. Binary classification neural network for coding/noncoding gene prediction
+ 
+## TODO:
+* Write more descriptive explanations 
+* Move Jupyter Notebook and Google Colab setups to README
+* Create visuals for tricodon/hexcodon weight representations
+* Create visuals for occurances of TIS codons at positions
+* Train LD and NN by inputing a text file of prokaryote genome IDs
+* Add more statistical analysis (TP, FP) + more in depth analysis of where the model fails
+* Train NN on more data and save NN model
+* Create framework for predicting if any input sequence is a gene or not (FASTA) 
 
-  The project consists of three main steps:
+## Quick tour
+* Add example of how the pipeline will work
 
-    1) Feature engineering/extraction
-    2) Linear Discriminant training on high-dimentional features
-    3) Binary classification neural network for coding/noncoding gene prediction
+## Setup
+### Jupyter Notebook
+* TODO
 
-  In the first step, features such as monocodon (tricodon) usage, dicodon (hexcodon) usage, translation initiation sites (TIS), and GC content must be extracted from prokaryotic genomes. Monocodon and dicodon usage refer to the frequence of codons and dicodons (6 base pairs) in coding and noncoding regions. Coding proteins often have a TIS upstream of the start codon. These TIS patterns are extracted by comparing up and downstream regions for positive TIS candidates (true start codons in coding sequences) to negative TIS candidates (in-frame start codons within coding sequences). Lastly, it is well known that the GC content between coding and noncoding regions vary. 
-  In the second step, linear discriminants are derived to reduce the dimensionality of the extracted features. The individual features (excluding GC content) are taken as multivariate linear regression problems and the Normal Equation is utilized to compute the weights (coefficient) matrix for each feature. 
-  In the last step, a neural network is trained on fragmented data.
-
-
-  Summary of features:
-
-    - x1 - tricodon       - (n,64)   --reduced to a weights matrix of (64,1)
-    - x2 - hexcodon       - (n,4096) --reduced to a weights matrix of (4096,1)
-    - x3 - positive TIS   - (n,58,64 == n,3712) --reduced to a weights matrix of (3712,1)
-    - x4 - negative TIS   - (m,58,64 == m,3712) --reduced to a weights matrix of (3712,1)
-    - x5 - complete seq   - 1 if fragment contains a complete gene, else 0
-    - x6 - incomplete seq - 0 if fragment contains a complete gene, else 1
-    - x7 - GC content     - (n,1)
+### Google Colab
+* TODO
