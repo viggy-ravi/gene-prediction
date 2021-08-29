@@ -31,10 +31,14 @@ This project was written using Python 3.8.
 * re
 * itertools
 * textwrap
+* random
 * numpy
 * scipy
 * Bio
 * tensorflow
+* pandas
+* matplotlib
+* seaborn
 
 ### With Google Colab
 First mount your Google Drive and move to your working directory. 
