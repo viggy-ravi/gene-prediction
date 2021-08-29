@@ -10,22 +10,44 @@ The project consists of several sections:
 3. Linear Discriminant - Dimentionality reduction on high dimensional features
 4. Binary classification neural network for coding/noncoding gene prediction
  
-## TODO:
-* Write more descriptive explanations 
+### TODO
+* Write more descriptive explanations in notebook
 * Move Jupyter Notebook and Google Colab setups to README
 * Create visuals for tricodon/hexcodon weight representations
 * Create visuals for occurances of TIS codons at positions
 * Train LD and NN by inputing a text file of prokaryote genome IDs
-* Add more statistical analysis (TP, FP) + more in depth analysis of where the model fails
+* Add more statistical analysis + more in depth analysis of where the model fails
 * Train NN on more data and save NN model
-* Create framework for predicting if any input sequence is a gene or not (FASTA) 
+* Create pipeline for predicting if any input sequence is a gene or not (FASTA) 
 
 ## Quick tour
 * Add example of how the pipeline will work
 
 ## Setup
-### Jupyter Notebook
+This project was written using Python 3.8. 
+
+### Dependencies
+* os
+* sys
+* re
+* itertools
+* textwrap
+* numpy
+* scipy
+* Bio
+* tensorflow
+
+### With Google Colab
+First mount your Google Drive and move to your working directory. 
+
+    from google.colab import drive
+    drive.mount('/content/gdrive')
+
+    # Change working directory
+    %cd gdrive/MyDrive/
+
+### With pip
 * TODO
 
-### Google Colab
+### With conda
 * TODO
