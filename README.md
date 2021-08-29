@@ -56,10 +56,7 @@ Open the `Binary-Classification-of-Coding-and-Noncoding-Genes.ipynb` file and in
 * seaborn
 
 ## TODO
-* Write more descriptive explanations in notebook
 * Create visuals for tricodon/hexcodon weight representations
 * Create visuals for occurances of TIS codons at positions
-* Train LD and NN by inputing a text file of prokaryote genome IDs
-* Add more statistical analysis + more in depth analysis of where the model fails
 * Train NN on more data and save NN model
 * Create pipeline for predicting if any input sequence is a gene or not (FASTA) 
