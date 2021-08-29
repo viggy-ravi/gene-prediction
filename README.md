@@ -48,10 +48,7 @@ Next, clone this repository and move into the directory.
     # Go to gene-prediction folder
     %cd gene-prediction/
 
-Open the `Binary-Classification-of-Coding-and-Noncoding-Genes.ipynb` file and install the necessary dependendies. You will then be able to replicate the results from my notebook.
-
-    # Install dependencies
-    !pip install -r requirements.txt
+Open the `Binary-Classification-of-Coding-and-Noncoding-Genes.ipynb` file and install the necessary dependendies. You will then be able to replicate the results from this notebook.
     
 ### Dependencies
 * os
