@@ -13,9 +13,8 @@ This project is based on the 2008 paper ['Gene prediction in metagenomic fragmen
     * dicodon (hexcodon) frequency, 
     * tis, 
     * gc content
-3. Linear Discriminant
-    * dimentionality reduce high dimensional features (tricodon, hexcodon, and tis)
-4. Binary classification neural network for coding/noncoding gene prediction
+3. Train Linear Discriminant for Dimensional Reduction
+4. Train Binary Neural Network for Gene Prediction
 
 ## Quick tour
 * Add example of how the pipeline will work
