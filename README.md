@@ -12,7 +12,6 @@ The project consists of several sections:
  
 ### TODO
 * Write more descriptive explanations in notebook
-* Move Jupyter Notebook and Google Colab setups to README
 * Create visuals for tricodon/hexcodon weight representations
 * Create visuals for occurances of TIS codons at positions
 * Train LD and NN by inputing a text file of prokaryote genome IDs
@@ -45,9 +44,19 @@ First mount your Google Drive and move to your working directory.
 
     # Change working directory
     %cd gdrive/MyDrive/
+    
+Next, clone this repository and install the dependencies using the `requirements.txt` file.
 
-### With pip
-* TODO
+    # Clone git repository (copy all files to Google Colab)
+    !git clone https://github.com/viggy-ravi/gene-prediction.git
+    
+    # Go to gene-prediction folder
+    %cd gene-prediction/
 
-### With conda
-* TODO
+    # Install dependencies
+    !pip install -r requirements.txt
+
+Lastly, on Google Colab, you will have to manually install biopython (Bio).
+
+    # Manually install biopython
+    !pip3 install biopython
