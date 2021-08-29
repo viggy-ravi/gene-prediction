@@ -5,9 +5,16 @@
 This project was based on the 2008 paper ['Gene prediction in metagenomic fragments: A large scale machine learning approach'](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-217) by Hoff et at. My intentions for starting this project were to gain a deeper understanding of machine learning approaches behind the `Orphelia gene prediction algorithm` and sharpen my programming skills. 
     
 The project consists of several sections:
-1. Preprocess Genome (extract coding sequences/noncoding sequences, shuffle/split data)
-2. Extract Features (monocodon frequency, dicodon frequency, tis, gc)
-3. Linear Discriminant - Dimentionality reduction on high dimensional features
+1. Preprocess Genome 
+    * extract coding sequences/noncoding sequences
+    * shuffle/split data
+2. Extract Features 
+    * monocodon (tricodon) frequency, 
+    * dicodon (hexcodon) frequency, 
+    * tis, 
+    * gc content
+3. Linear Discriminant
+    * dimentionality reduce high dimensional features (tricodon, hexcodon, and tis)
 4. Binary classification neural network for coding/noncoding gene prediction
  
 ### TODO
