@@ -41,7 +41,7 @@ This project was written using Python 3.8.
 * seaborn
 
 ### With Google Colab
-First mount your Google Drive and move to your working directory. 
+First open a new Google Colab file. Mount your Google Drive and move to your working directory. 
 
     from google.colab import drive
     drive.mount('/content/gdrive')
@@ -49,7 +49,7 @@ First mount your Google Drive and move to your working directory.
     # Change working directory
     %cd gdrive/MyDrive/
     
-Next, clone this repository and install the dependencies using the `requirements.txt` file.
+Next, clone this repository and move into the directory.
 
     # Clone git repository (copy all files to Google Colab)
     !git clone https://github.com/viggy-ravi/gene-prediction.git
@@ -57,10 +57,7 @@ Next, clone this repository and install the dependencies using the `requirements
     # Go to gene-prediction folder
     %cd gene-prediction/
 
+Open the `Binary-Classification-of-Coding-and-Noncoding-Genes.ipynb` file and install the necessary dependendies. You will then be able to replicate the results from my notebook.
+
     # Install dependencies
     !pip install -r requirements.txt
-
-Lastly, on Google Colab, you will have to manually install biopython (Bio).
-
-    # Manually install biopython
-    !pip3 install biopython
