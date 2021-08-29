@@ -30,22 +30,6 @@ The project consists of several sections:
 * Add example of how the pipeline will work
 
 ## Setup
-This project was written using Python 3.8. 
-
-### Dependencies
-* os
-* sys
-* re
-* itertools
-* textwrap
-* random
-* numpy
-* scipy
-* Bio
-* tensorflow
-* pandas
-* matplotlib
-* seaborn
 
 ### With Google Colab
 First open a new Google Colab file. Mount your Google Drive and move to your working directory. 
@@ -68,3 +52,18 @@ Open the `Binary-Classification-of-Coding-and-Noncoding-Genes.ipynb` file and in
 
     # Install dependencies
     !pip install -r requirements.txt
+    
+### Dependencies
+* os
+* sys
+* re
+* itertools
+* textwrap
+* random
+* numpy
+* scipy
+* Bio
+* tensorflow
+* pandas
+* matplotlib
+* seaborn
