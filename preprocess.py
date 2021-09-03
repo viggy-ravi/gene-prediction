@@ -19,11 +19,13 @@ def preprocess_genome(prokaryote_ids, OFFSET=30):
     _cds, _ncs = [], []
 
     for prokaryote_id in prokaryote_ids:
-        seq_record, sequence = fetch_genome(prokaryote_id)                      # fetch genome
-        dna = [sequence, sequence.reverse_complement()]                         # coding, noncoding strands
-        cds, ncs = get_orfs(seq_record, dna, prokaryote_id, OFFSET=OFFSET)      # find pos/neg orfs in genome 
+        seq_record = fetch_genome(prokaryote_id)                           # fetch genome
+        dna = [seq_record, seq_record.reverse_complement()]                # coding, noncoding strands
+        cds, ncs = get_orfs(seq_record, dna, prokaryote_id, OFFSET=OFFSET) # find pos/neg orfs in genome 
         _cds.extend(cds)
         _ncs.extend(ncs)
+        
+        print(f'{len(cds)}, {len(ncs)} CDS, NCS Records')
         
     return _cds, _ncs
 
@@ -33,14 +35,9 @@ def fetch_genome(prokaryote_id):
     seq_record = SeqIO.read(handle, "gb")
     handle.close()
     
-    # full sequence from FASTA file
-    handle = Entrez.efetch(db="sequences", id=prokaryote_id, rettype="fasta", retmode="text")
-    sequence = SeqIO.read(handle, "fasta")
-    handle.close()
+    print(f'Fetched {prokaryote_id} GenBank record')
     
-    print(f'Fetched {prokaryote_id} GenBank records and FASTA sequence')
-    
-    return seq_record, sequence
+    return seq_record
 
 
 def get_orfs(seq_record, dna, prokaryote_id, OFFSET=30):
@@ -74,16 +71,16 @@ def get_orfs(seq_record, dna, prokaryote_id, OFFSET=30):
     for interregion in interregions:
         feature = interregion.features[0]
         strand  = feature.strand
-
+        
         # find longest orf in interregion
         i_start  = feature.location.start.position
         i_end    = feature.location.end.position
         intr_seq = dna[0][i_start:i_end] if strand == 1 else dna[1][::-1][i_start:i_end][::-1]
         long_orf = longest_orf(intr_seq.seq)
-
+        
         if not long_orf: continue                       # check if orf exists 
         if long_orf[1] - long_orf[0] < 60: continue  # check if orf length > l_min = 60
-
+        
         tag   = interregion.name
         start = i_start + long_orf[0]
         end   = i_start + long_orf[1]
