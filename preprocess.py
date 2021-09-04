@@ -122,6 +122,7 @@ def get_interregions(coding_records, seq_record):
         else:
             sys.stderr.write("No strand indicated %d-%d. Assuming +\n" %(mystart, myend))
             cds_list_plus.append((mystart,myend,1))
+    buffer = 0
     for i,pospair in enumerate(cds_list_plus[1:]):
         # Compare current start position to previous end position
         last_end = cds_list_plus[i][1]
@@ -132,7 +133,7 @@ def get_interregions(coding_records, seq_record):
             name = initials + '_NC' + str(i).zfill(5)
             feature = [SeqFeature(FeatureLocation(last_end+1,this_start,strand_string), type='interregion')]
             intergenic_records.append(SeqRecord(intergene_seq, name=name, id=prokaryote_id, features=feature))
-    buffer = i
+        count = i
     for i,pospair in enumerate(cds_list_minus[1:]):
         last_end = cds_list_minus[i][1]
         this_start = pospair[0]
