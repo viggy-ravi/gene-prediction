@@ -19,7 +19,7 @@ This project is based on the 2008 paper ['Gene prediction in metagenomic fragmen
 ## TODO
 * Create visuals for tricodon/hexcodon weight representations
 * Create visuals for occurances of TIS codons up- and down-stream of start codon
-* Ensure NCS lengths follow the same distribution as CDS lengths
+* Ensure NCS lengths follow the same distribution as CDS lengths (normalize)
 * Train NN on more data
     * Be able to train on batches (to overcome large amount of training data) 
 * Save NN model  
