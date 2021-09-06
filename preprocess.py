@@ -15,7 +15,22 @@ from Bio import Entrez
 START_CODONS = ['ATG','CTG','GTG','TTG']
 STOP_CODONS = ['TAG','TGA','TAA']
 
-def preprocess_genome(prokaryote_ids, OFFSET=30):
+def get_input_ids(filename):    
+    try:
+        open('./inputs/' + filename + '.txt', 'r')
+    except IOError:
+        print("Error: File does not appear to exist. Try 'input_test', 'input_sm', 'input_med', or 'input_lg'.")
+        return 0
+    
+    with open('./inputs/' + filename + '.txt') as file:
+        prok_ids = file.readlines()
+        prok_ids = [line.rstrip() for line in lines]
+        
+    return prok_ids
+
+def preprocess_genome(filename, OFFSET=30):
+    prokaryote_ids = get_input_ids(filename)    
+    
     _cds, _ncs = [], []
 
     for prokaryote_id in prokaryote_ids:
@@ -23,7 +38,7 @@ def preprocess_genome(prokaryote_ids, OFFSET=30):
             seq_record = fetch_genome(prokaryote_id)                           # fetch genome
             print(f'Successfully fetched {prokaryote_id}')
         except Exception:
-            print(f'Invalid accession number: {prokaryote_id}')
+            print(f'Error: Invalid accession number: {prokaryote_id}')
             continue
         
         dna = [seq_record, seq_record.reverse_complement()]                # coding, noncoding strands
