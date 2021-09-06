@@ -67,7 +67,7 @@ def extract_codon_usage(seq, n):
     return data
 
 
-def extract_codon_tis_features(orfs, train_nn=False, OFFSET=30):
+def extract_features(orfs, train_nn=False, OFFSET=30):
 
     _tri, _hex, _gc, _yc = [], [], [], []
     _tis_nn = []
@@ -102,7 +102,7 @@ def extract_codon_tis_features(orfs, train_nn=False, OFFSET=30):
     return np.array(_tri), np.array(_hex), np.array(_tis_nn), np.array(_gc), np.array(_yc)
 
 
-def LD_tis_training_features(cds, OFFSET=30):
+def extract_tis_training_feature(cds, OFFSET=30):
     _tis, _yt = [], []
     for record in cds:
         seq = record.seq
