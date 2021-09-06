@@ -19,14 +19,23 @@ def preprocess_genome(prokaryote_ids, OFFSET=30):
     _cds, _ncs = [], []
 
     for prokaryote_id in prokaryote_ids:
-        seq_record = fetch_genome(prokaryote_id)                           # fetch genome
+        try:
+            seq_record = fetch_genome(prokaryote_id)                           # fetch genome
+            print(f'Successfully fetched {prokaryote_id}')
+        except Exception:
+            print(f'Invalid accession number: {prokaryote_id}')
+            continue
+        
         dna = [seq_record, seq_record.reverse_complement()]                # coding, noncoding strands
         cds, ncs = get_orfs(seq_record, dna, prokaryote_id, OFFSET=OFFSET) # find pos/neg orfs in genome 
         _cds.extend(cds)
         _ncs.extend(ncs)
         
-        print(f'{len(cds)}, {len(ncs)} CDS, NCS Records')
-        
+        print(f'{len(cds)}, {len(ncs)} CDS, NCS Records\n')
+    
+    print(f'{len(_cds)} Total CDS Records')
+    print(f'{len(_ncs)} Total NCS Records')
+    
     return _cds, _ncs
 
 def fetch_genome(prokaryote_id):
@@ -34,8 +43,6 @@ def fetch_genome(prokaryote_id):
     handle = Entrez.efetch(db="sequences", id=prokaryote_id, rettype="gbwithparts", retmode="text")
     seq_record = SeqIO.read(handle, "gb")
     handle.close()
-    
-    print(f'Fetched {prokaryote_id} GenBank record')
     
     return seq_record
 
