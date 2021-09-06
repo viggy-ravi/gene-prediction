@@ -16,8 +16,16 @@ This project is based on the 2008 paper ['Gene prediction in metagenomic fragmen
 3. Train Linear Discriminant for Dimensional Reduction
 4. Train Binary Neural Network for Gene Prediction
 
-## Quick tour
-* Add example of how the pipeline will work
+## TODO
+* Create visuals for tricodon/hexcodon weight representations
+* Create visuals for occurances of TIS codons at positions
+* Ensure NCS lengths follow the same distribution as CDS lengths
+* Train NN on more data
+    * Be able to train on batches (to overcome large amount of training data) 
+* Save NN model  
+* Create pipeline for predicting if any input sequence is a gene or not (FASTA) 
+    * Parse genome into all possible ORFs and save as a FASTA file
+    * Preprocess full sequences before passing into trained NN
 
 ## Setup
 
@@ -54,9 +62,3 @@ Open the `Binary-Classification-of-Coding-and-Noncoding-Genes.ipynb` file and in
 * pandas
 * matplotlib
 * seaborn
-
-## TODO
-* Create visuals for tricodon/hexcodon weight representations
-* Create visuals for occurances of TIS codons at positions
-* Train NN on more data and save NN model
-* Create pipeline for predicting if any input sequence is a gene or not (FASTA) 
