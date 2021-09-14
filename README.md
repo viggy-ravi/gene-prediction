@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This project is based on the 2008 paper ['Gene prediction in metagenomic fragments: A large scale machine learning approach'](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-217) by Hoff et at. The goal of the `Binary-Classification-of-Coding-and-Noncoding-Genes.ipynb` notebook is to train the gene prediction algorithm using a 2-stage approach - linear discriminant and neural network. The linear discriminant model reduces high dimensional features and the neural network predicts if a given sequence is a gene or not. My intentions for starting this project were to gain a deeper understanding of machine learning approaches behind the `Orphelia gene prediction algorithm` and sharpen my ML/programming skills.  
+This project is based on the 2008 paper ['Gene prediction in metagenomic fragments: A large scale machine learning approach'](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-9-217) by Hoff et at. The goal of the `gene_prediction_pipeline.ipynb` notebook is to train the gene prediction algorithm using a 2-stage approach - linear discriminant and neural network - and provide predictions for sequences in an easy to use way. The linear discriminant model reduces high dimensional features and the neural network predicts if a given sequence is a gene or not. My intentions for starting this project were to gain a deeper understanding of machine learning approaches behind the `Orphelia gene prediction algorithm` and sharpen my ML/programming skills.  
     
 ## Contents
 1. Preprocess Genome 
@@ -15,17 +15,18 @@ This project is based on the 2008 paper ['Gene prediction in metagenomic fragmen
     * gc content
 3. Train Linear Discriminant for Dimensional Reduction
 4. Train Binary Neural Network for Gene Prediction
+5. Predict Sequences (FASTA)
+    * Prediction from Genome Sequence
+    * Prediction from FASTA Input File
 
 ## TODO
-* Create visuals for tricodon/hexcodon weight representations
-* Create visuals for occurances of TIS codons up- and down-stream of start codon
+* Create visual for tricodon/hexcodon weight representations
+* Create visual for occurances of TIS codons up- and down-stream of start codon
+* Create visual for gc content vs sequence length
 * Ensure NCS lengths follow the same distribution as CDS lengths (normalize)
-* Train NN on more data
-    * Be able to train on batches (to overcome large amount of training data) 
-* Save NN model  
-* Create pipeline for predicting if any input sequence is a gene or not (FASTA) 
-    * Parse genome into all possible ORFs and save as a FASTA file
-    * Preprocess full sequences before passing into trained NN
+    * fit distribution (Erlang) to positive data (CDS)
+    * sample negative data (NCS) from fitted distribution
+* Implement batch training (to overcome large amount of training data) 
 
 ## Setup
 
@@ -46,19 +47,4 @@ Next, clone this repository and move into the directory.
     # Go to gene-prediction folder
     %cd gene-prediction/
 
-Open the `Binary-Classification-of-Coding-and-Noncoding-Genes.ipynb` file and install the necessary dependendies. You will then be able to replicate the results from this notebook.
-    
-### Dependencies
-* os
-* sys
-* re
-* itertools
-* textwrap
-* random
-* numpy
-* scipy
-* Bio
-* tensorflow
-* pandas
-* matplotlib
-* seaborn
+Open the `gene_prediction_pipeline.ipynb` file and install the necessary dependendies. You will then be able to replicate the results from this notebook.
