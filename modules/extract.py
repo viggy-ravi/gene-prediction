@@ -99,7 +99,7 @@ def extract_tis_training_frames(record, OFFSET):
         if i == 0: 
             _yt.append(1)
         else: 
-            _yt.append(-1)
+            _yt.append(0)
                 
     return _tis, _yt
 
@@ -127,9 +127,9 @@ def extract_codon_label(record):
         if label == 'CDS': 
             y = 1
         else: 
-            y = -1
+            y = 0
     except Exception:
-        return 0
+        return -1
     
     return y
 
