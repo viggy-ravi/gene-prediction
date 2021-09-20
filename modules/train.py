@@ -18,9 +18,14 @@ def discriminant(X, y, l=1):
     '''
     
     X = csr_matrix(X)
+    y = zero2negOne(y)
     I = np.eye(X.shape[1])
     w = np.linalg.inv(X.T@X + l*I) @ X.T@y
     return np.array(w).reshape(-1)
+
+
+def zero2negOne(y):
+    return [-1 if val == 0 else 1 for val in y]
 
 
 def tis_gaussian(LD_tis, LD_yt, wT):
@@ -48,8 +53,12 @@ def tis_gaussian(LD_tis, LD_yt, wT):
 
     mu_neg = np.mean(tis_neg)
     sd_neg = np.std(tis_neg)
+    
+    pi = np.array([pi_pos, pi_neg])
+    mu = np.array([mu_pos, mu_neg])
+    sd = np.array([sd_pos, sd_neg])
 
-    return ((pi_pos, pi_neg), (mu_pos, mu_neg), (sd_pos, sd_neg))
+    return [pi, mu, sd]
 
 def tis_pos_neg(tis, y, wT):
     '''

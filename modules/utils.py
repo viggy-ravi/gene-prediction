@@ -3,17 +3,30 @@
 Frequently used methods. 
 '''
 
+import random
 import numpy as np
+import re
+import itertools
 import json
 import csv
 from itertools import zip_longest
-from tensorflow.keras.models import model_from_json
+import matplotlib.pyplot as plt
 
-import re
-import itertools
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import tensorflow as tf
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+from tensorflow.keras.models import model_from_json
 
 START_CODONS = ['ATG','CTG','GTG','TTG']
 STOP_CODONS = ['TAG','TGA','TAA']
+
+
+def split_training_records(SeqRecords, size=None, random_state=None, shuffle=True):
+    if random_state: random.seed(random_state)
+    if shuffle: random.shuffle(SeqRecords)
+    m = int(len(SeqRecords) * size)
+    return SeqRecords[0:m], SeqRecords[m:] 
 
 
 def save_model2json(filename, model):    
@@ -43,46 +56,62 @@ def load_model(model):
         return 0
     
     return loaded_model
-
-
-def save_params2csv(filename, w, gaus_params):
-    data = []
-    for l in w: data.append(l.tolist())
-    for l in gaus_params: data.append(list(l))
     
-    with open(filename,"w+") as f:
+    
+def save_params2csv(filename, data):
+    with open(filename, 'w') as f:
         writer = csv.writer(f)
-        for values in zip_longest(*data):
-            writer.writerow(values)
-            
-    print("Saved parameters to disk.")
+        for row in data:
+            writer.writerow(row)            
+    print("Saved data to disk.")
 
 
-def load_param(filename):
-    wM, wD, wT = [], [], []
-    pi, mu, sd = [], [], []
+def load_params(filename):
+    loaded_data = []    
     
     try:
         with open(filename, "r") as f:
-            csv_reader = csv.reader(f, delimiter=',')
-            for lines in csv_reader:
-                if lines[0] != '': wM.append(lines[0])
-                if lines[1] != '': wD.append(lines[1])
-                if lines[2] != '': wT.append(lines[2])
-                if lines[3] != '': pi.append(lines[3])
-                if lines[4] != '': mu.append(lines[4])
-                if lines[5] != '': sd.append(lines[5])
-
+            csv_reader = csv.reader(f)
+            for row in csv_reader:
+                loaded_data.append(np.array(row).astype(np.float64))
         print("Loaded parameters from disk.")
         
     except Exception:
         print(f"Error: parameters {filename} not found.")
         return 0
-    
-    w = [np.array(wM).astype(np.float64), np.array(wD).astype(np.float64), np.array(wT).astype(np.float64)]
-    p = [np.array(pi).astype(np.float64), np.array(mu).astype(np.float64), np.array(sd).astype(np.float64)]
                 
-    return w, p
+    return loaded_data
+
+
+def plot_confusion_matrix(cm, classes, normalize=False, title='Confusion matrix', cmap=plt.cm.Blues):
+    """
+    This function prints and plots the confusion matrix.
+    Normalization can be applied by setting `normalize=True`.
+    """
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+
+    if normalize:
+        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+        print("Normalized confusion matrix")
+    else:
+        print('Confusion matrix, without normalization')
+
+    print(cm)
+
+    thresh = cm.max() / 2.
+    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+        plt.text(j, i, cm[i, j],
+            horizontalalignment="center",
+            color="white" if cm[i, j] > thresh else "black")
+
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
 
 
 def orf_finder(orf_seq):
