@@ -7,6 +7,11 @@ Provides code extract codon usage or the frequencies of codons found in a sequen
 import numpy as np
 from scipy.stats import norm
 from Bio.SeqUtils import GC
+
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import tensorflow as tf
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 from tensorflow.keras.utils import to_categorical
 
 from modules.utils import orf_finder, longest_orf, populate_codon_idx_dict
