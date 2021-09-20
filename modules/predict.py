@@ -6,7 +6,7 @@ from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from modules.preprocess import genome
 from modules.extract import features, dimentional_reduction
-from modules.utils import longest_orf, load_param, load_model
+from modules.utils import longest_orf, load_params, load_model
 
 # suppress warnings
 import tensorflow as tf
@@ -24,9 +24,9 @@ def from_genome(filename, params, model, outfile, n_genomes=None, seq='all', OFF
     seqrecord2fasta(tmp_file, _seq)
     
     # from_fasta
-    predictions = from_fasta(tmp_file, params, model, outfile)
+    y_pred = from_fasta(tmp_file, params, model, outfile)
     
-    return predictions
+    return y_pred
 
 
 def from_fasta(filename, params, model, outfile):   
@@ -37,15 +37,18 @@ def from_fasta(filename, params, model, outfile):
     feat, _ = features(records)
     
     # dim red features
-    w, p = load_param(params)
+    data = load_params(params)
+    w, p = data[0:3], data[3:]
     nn_input = dimentional_reduction(feat, w, p)
     
-    # predict
+    # predict + convert to 1s or 0s
     predictions = predict(nn_input, model)
+    y_pred = [1 if val >= 0.5 else 0 for val in predictions]
     
-    save_predictions(outfile, predictions, records)
+    # save output fasta file
+    save_predictions(outfile, y_pred, records)
     
-    return predictions
+    return y_pred
 
 
 def seqrecord2fasta(filename, seq_records):
