@@ -20,12 +20,6 @@ This project is based on the 2008 paper ['Gene prediction in metagenomic fragmen
     * Prediction from FASTA Input File
 
 ## TODO
-* Create visual for tricodon/hexcodon weight representations
-* Create visual for occurances of TIS codons up- and down-stream of start codon
-* Create visual for gc content vs sequence length
-* Ensure NCS lengths follow the same distribution as CDS lengths (normalize)
-    * fit distribution (Erlang) to positive data (CDS)
-    * sample negative data (NCS) from fitted distribution
 * Implement batch training (to overcome large amount of training data) 
 
 ## Setup
