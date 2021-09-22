@@ -32,7 +32,9 @@ def features(seq_records):
     for record in seq_records:
         # TRY EXCEPT
         orf = longest_orf(record.seq)
+        if not orf: continue
         seq = record[orf[0]:orf[1]].seq
+        if len(seq) < 60: continue
         
         # FEATURES (TRI, HEX, TIS, GC)
         _tri.append(extract_codon_usage(seq, 3))
@@ -56,9 +58,10 @@ def training_features(seq_records, OFFSET=30):
     _tri, _hex, _yc = [], [], []
     _tis, _yt = [], []
     
-    for record in seq_records:
-        orf = longest_orf(record.seq)
-        seq = record[orf[0]:orf[1]].seq
+    for record in seq_records:        
+        seq = record.seq[OFFSET:-OFFSET]
+#         orf = longest_orf(record.seq)
+#         seq = record[orf[0]:orf[1]].seq
         
         # CODON FEATURES (TRI, HEX)
         _tri.append(extract_codon_usage(seq, 3))

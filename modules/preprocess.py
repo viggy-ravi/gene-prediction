@@ -6,6 +6,9 @@ ORFs consist of positive ORFs or genes, and negative ORFs or ORFs found within t
 
 import random
 import warnings
+import pandas as pd
+import seaborn as sns
+from math import log
 from scipy import stats
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
@@ -13,6 +16,7 @@ from Bio.SeqFeature import SeqFeature, FeatureLocation
 from Bio import Entrez
 
 from modules.utils import codon_pos, orf_finder, longest_orf
+from modules.extract import extract_gc_content
 
 def get_input_ids(filename):  
     '''
@@ -34,7 +38,7 @@ def get_input_ids(filename):
     
     return prok_ids
 
-def genome(filename, n_genomes=None, seq = 'all', OFFSET=30, noise=False, LMIN=60):
+def genome(filename, n_genomes=None, seq = 'all', e=0.007, tol=0.2, random_state=None, OFFSET=30, noise=False, LMIN=60):
     '''
     INPUT: filename (string), LMIN=60, OFFSET=60
     OUTPUT: cds, ncs
@@ -56,10 +60,7 @@ def genome(filename, n_genomes=None, seq = 'all', OFFSET=30, noise=False, LMIN=6
         
         # GET GENOME USING ENTREZ
         try:
-            seq_record = entrez(acc_num, 
-                                db="sequences", 
-                                rettype="gbwithparts", 
-                                file_format="gb")
+            seq_record = entrez(acc_num, db="sequences", rettype="gbwithparts", file_format="gb")
             print(f'Successfully fetched {acc_num}')
             
         except Exception:
@@ -77,19 +78,21 @@ def genome(filename, n_genomes=None, seq = 'all', OFFSET=30, noise=False, LMIN=6
             interregions = get_interregions(cds, seq_record)
 
             # GET NEGATIVE ORFS (NCS)
-            ncs = get_ncs_records(interregions, dna, acc_num, LMIN, OFFSET)
+#             ncs = get_ncs_records(interregions, dna, acc_num, LMIN, OFFSET)
+            mu, std = fit_norm(log_norm(sequence_lengths(cds)))
+            ncs = get_ncs_records_UPDATED(interregions, dna, acc_num, [mu,std], e, tol, LMIN, OFFSET, random_state)
 
         # SAVE DATA
         if seq.lower() == 'ncs':
             _ncs.extend(ncs)
-            print(f'{len(ncs)} NCS Records\n')
+            print(f'\t{len(ncs)} NCS Records\n')
         elif seq.lower() == 'cds':
             _cds.extend(cds)
-            print(f'{len(cds)} CDS Records\n')
+            print(f'\t{len(cds)} CDS Records\n')
         else:
             _cds.extend(cds)
             _ncs.extend(ncs)
-            print(f'{len(cds)} CDS Records, {len(ncs)} NCS Records\n')
+            print(f'\t{len(cds)} CDS Records, {len(ncs)} NCS Records')
     
     print(f'{len(_cds)} Total CDS Records')
     print(f'{len(_ncs)} Total NCS Records')
@@ -106,6 +109,14 @@ def entrez(acc_num, db="sequences", rettype="gbwithparts", file_format="gb"):
     return seq_record
 
 
+def build_sequence(start, end, strand, dna, OFFSET):
+    m30    = (dna[0][start-OFFSET:start] if strand == 1 else dna[1][::-1][end:end+OFFSET][::-1]).seq
+    seq    = (dna[0][start:end] if strand == 1 else dna[1][::-1][start:end][::-1]).seq
+    p30    = (dna[0][end:end+OFFSET] if strand == 1 else dna[1][::-1][start-OFFSET:start][::-1]).seq
+    
+    return m30+seq+p30
+
+
 def get_cds_records(seq_record, dna, acc_num, LMIN, OFFSET):
     cds = []
     for feature in seq_record.features:
@@ -114,6 +125,7 @@ def get_cds_records(seq_record, dna, acc_num, LMIN, OFFSET):
             start  = feature.location.start.position
             end    = feature.location.end.position
             strand = feature.strand
+             
             m30    = (dna[0][start-OFFSET:start] if strand == 1 else dna[1][::-1][end:end+OFFSET][::-1]).seq
             seq    = (dna[0][start:end] if strand == 1 else dna[1][::-1][start:end][::-1]).seq
             p30    = (dna[0][end:end+OFFSET] if strand == 1 else dna[1][::-1][start-OFFSET:start][::-1]).seq
@@ -158,7 +170,7 @@ def get_interregions(coding_records, seq_record):
             intergene_seq = seq_record.seq[last_end:this_start]
             strand_string = +1
             name = initials + '_NC' + str(i).zfill(5)
-            feature = [SeqFeature(FeatureLocation(last_end+1,this_start,strand_string), type='interregion')]
+            feature = [SeqFeature(FeatureLocation(last_end,this_start,strand_string), type='interregion')]
             intergenic_records.append(SeqRecord(intergene_seq, name=name, id=acc_num, features=feature))
         count = i
     for i,pospair in enumerate(cds_list_minus[1:]):
@@ -168,7 +180,7 @@ def get_interregions(coding_records, seq_record):
             intergene_seq = seq_record.seq[last_end:this_start]
             strand_string = -1
             name = initials + '_NC' + str(i+buffer).zfill(5)
-            feature = [SeqFeature(FeatureLocation(last_end+1,this_start,strand_string), type='interregion')]
+            feature = [SeqFeature(FeatureLocation(last_end,this_start,strand_string), type='interregion')]
             intergenic_records.append(SeqRecord(intergene_seq, name=name, id=acc_num, features=feature))
     return intergenic_records
 
@@ -207,3 +219,87 @@ def get_ncs_records(interregions, dna, acc_num, LMIN, OFFSET):
         ncs.append(r)
     
     return ncs
+
+
+def sequence_lengths(records, offset=60):
+    lengths = []
+    for record in records:
+        lengths.append(len(record.seq)-offset)
+    return lengths
+
+def log_norm(data):
+    return [log(x) for x in data]
+
+def fit_norm(data):
+    mu, std = stats.norm.fit(pd.Series(data))
+    return mu, std
+
+def pnorm(x, loc, scale):
+    return stats.norm.pdf(log(x), loc=loc, scale=scale)
+
+def get_ncs_records_UPDATED(interregions, dna, acc_num, p, e, tol, LMIN, OFFSET, random_state=None):
+    if random_state: random.seed(random_state) 
+    ncs = []
+    mu, std = p
+    
+    for interregion in interregions:
+        # get record info
+        tag     = interregion.name
+        strand  = interregion.features[0].strand
+        i_start = interregion.features[0].location.start.position
+        
+        # find longest orf in interregion
+        long_orf = longest_orf(interregion.seq)
+        if not long_orf: continue
+        long_seq = interregion.seq[long_orf[0]:long_orf[1]]
+        l_start  = i_start + long_orf[0]
+        l_end    = i_start + long_orf[1]
+        
+        # find all orfs in longest orf
+        all_orfs = orf_finder(long_seq)
+        if not all_orfs: continue
+        
+        for orf in all_orfs:
+            # check edge cases
+            orf_len = orf[1] - orf[0]
+            if orf_len < LMIN: continue
+            if pnorm(orf_len, mu, std) < e: continue
+            if random.uniform(0,1) < tol: continue
+            
+            start = l_start+orf[0]
+            end   = l_start+orf[1]
+
+            seq = dna[0][start-OFFSET:end+OFFSET].seq
+                        
+            f = [SeqFeature(FeatureLocation(start, end, strand), type='NCS')]
+            r = SeqRecord(seq, name=tag, id=acc_num, features=f)
+            ncs.append(r)
+            
+    return ncs
+
+
+def get_gc_content(records):
+    gc = []
+    for record in records:
+        gc.append(extract_gc_content(record.seq))
+    return gc
+
+
+def plot_data_distributions(cds, ncs, x, element='poly'):
+    # put data into tidy lists
+    labels = ['cds']*len(cds) + ['ncs']*len(ncs)
+
+    if x == 'length':
+        features = sequence_lengths(cds) + sequence_lengths(ncs)
+    elif x == 'log_length':
+        features = log_norm(sequence_lengths(cds)) + log_norm(sequence_lengths(ncs))
+    elif x == 'gc':
+        features = get_gc_content(cds) + get_gc_content(ncs)
+    else:
+        print('Input valid feature - ex. length, log_length, gc.')
+        return -1
+
+    # add data to pandas dataframe
+    data = {'label': labels, x: features}
+    df = pd.DataFrame(data)
+    sns.histplot(df, x=x, hue="label", element=element)
