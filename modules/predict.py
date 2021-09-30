@@ -5,8 +5,8 @@
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from modules.preprocess import genome
-from modules.extract import features, dimentional_reduction
-from modules.utils import longest_orf, load_params, load_model
+from modules.extract import features, dimentional_reduction, extract_longest_orf
+from modules.genepred import load_params, load_model
 
 # suppress warnings
 import tensorflow as tf
@@ -88,7 +88,7 @@ def save_predictions(outfile, predictions, seq_records):
     
     for (pred, record) in zip(predictions, seq_records):
         if pred > 0.5:
-            orf = longest_orf(record.seq)
+            orf = extract_longest_orf(record.seq)
             SEQ = record[orf[0]:orf[1]].seq
             r = SeqRecord(SEQ, id=record.id, name=record.name, description=record.description)
             results.append(r)

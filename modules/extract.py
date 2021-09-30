@@ -4,6 +4,8 @@ Provides code extract codon usage or the frequencies of codons found in a sequen
     extract tis features for linear discriminant tis training. 
 '''
 
+import re
+import itertools
 import numpy as np
 from scipy.stats import norm
 from Bio.SeqUtils import GC
@@ -14,10 +16,97 @@ import tensorflow as tf
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 from tensorflow.keras.utils import to_categorical
 
-from modules.utils import orf_finder, longest_orf, populate_codon_idx_dict
+##########################################################################################
+##########################################################################################
+##########################################################################################
+
+
+# Produces all tri/hex codon permutations 4^n (ex. AAA, AAC,...,TTT for n=3) 
+def permutations_with_replacement(n):
+    for i in itertools.product(("A", "C", "G", "T"), repeat=n):
+        yield i
+
+# Function to create codon:idx dictionary. Converts codons to integers (ex. {AAA:0, AAC:1, ..., TTT:63} for n=3)
+def populate_codon_idx_dict(nbases=3):
+    codon_idx_dict = {}
+    count = 0
+    for i in permutations_with_replacement(nbases):
+        key = "".join(i) #codon or dicodon sequence
+        codon_idx_dict[key] = count
+        count += 1
+    return codon_idx_dict
+
 
 TRICODON_IDX_DICT = populate_codon_idx_dict(nbases=3)
 HEXCODON_IDX_DICT = populate_codon_idx_dict(nbases=6)
+
+
+##########################################################################################
+##########################################################################################
+##########################################################################################
+
+
+START_CODONS = ['ATG','CTG','GTG','TTG']
+STOP_CODONS = ['TAG','TGA','TAA']
+    
+def extract_all_orfs(seq):
+    '''
+    INPUT: seq (Bio.Seq.Seq)
+    OUTPUT: returns all in-frame start codons within an ORF sequence
+    '''
+    
+    all_starts = codon_pos(seq, START_CODONS)
+
+    # find all ORF
+    orfs = []
+    e = len(seq)
+    for s in all_starts:
+        if (e >= s) and (s%3 == 0):
+            orfs.append([s,e])
+    
+    return orfs
+
+
+def extract_longest_orf(seq):
+    '''
+    INPUT: seq (Bio.Seq.Seq)
+    OUTPUT: returns start and end position of longest orf in a sequence
+    '''
+    all_starts = codon_pos(seq, START_CODONS)
+    all_stops  = codon_pos(seq, STOP_CODONS)
+
+    orfs = []
+    found = False;            
+    for s in all_starts:
+        for e in all_stops[::-1]:
+            if (e >= s) and ((e-s)%3 == 0):
+                found = True; orfs = [s,e+3];
+                break
+        if found: break
+            
+    return orfs
+
+
+def codon_pos(seq, codon_list):
+    '''
+    INPUT: seq, codon_list
+    OUTPUT:
+    
+        seq: Bio.Seq.Seq gene/non-gene sequence
+        codon_list: list of start or stop codons
+    '''
+    pos = []
+    for codon in codon_list:
+        matches = re.finditer(codon, str(seq))
+        matches_positions = [match.start() for match in matches]
+        pos.extend(matches_positions)
+    
+    return sorted(pos)
+
+
+##########################################################################################
+##########################################################################################
+##########################################################################################
 
 
 def features(seq_records):
@@ -31,7 +120,7 @@ def features(seq_records):
     
     for record in seq_records:
         # TRY EXCEPT
-        orf = longest_orf(record.seq)
+        orf = extract_longest_orf(record.seq)
         if not orf: continue
         seq = record[orf[0]:orf[1]].seq
         if len(seq) < 60: continue
@@ -60,7 +149,8 @@ def training_features(seq_records, OFFSET=30):
     
     for record in seq_records:        
         seq = record.seq[OFFSET:-OFFSET]
-#         orf = longest_orf(record.seq)
+        # TODO - rely on longest orf function instead of OFFSET
+#         orf = extract_longest_orf(record.seq)
 #         seq = record[orf[0]:orf[1]].seq
         
         # CODON FEATURES (TRI, HEX)
@@ -91,7 +181,7 @@ def extract_tis_training_frames(record, OFFSET):
     _tis, _yt = [], []
 
     # find orf-set
-    orf_set = orf_finder(record[OFFSET:-OFFSET].seq)
+    orf_set = extract_all_orfs(record[OFFSET:-OFFSET].seq)
 
     for i,cand in enumerate(orf_set):
         cand_start = cand[0] + OFFSET
