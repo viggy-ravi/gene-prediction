@@ -1,4 +1,4 @@
-''' train.py
+''' ld.py (linear discriminant)
 
 Provides code to train linear discriminant weight vectors (discrinimant) and 
     find gaussian distributions for positive and negative tis features (tis_gaussian).
@@ -6,10 +6,6 @@ Provides code to train linear discriminant weight vectors (discrinimant) and
 
 import numpy as np
 from scipy.sparse import csr_matrix
-
-##########################################################################################
-########################################--PUBLIC--########################################
-##########################################################################################
 
 def discriminant(X, y, l=1):    
     '''
@@ -22,9 +18,14 @@ def discriminant(X, y, l=1):
     '''
     
     X = csr_matrix(X)
+    y = zero2negOne(y)
     I = np.eye(X.shape[1])
     w = np.linalg.inv(X.T@X + l*I) @ X.T@y
     return np.array(w).reshape(-1)
+
+
+def zero2negOne(y):
+    return [-1 if val == 0 else 1 for val in y]
 
 
 def tis_gaussian(LD_tis, LD_yt, wT):
@@ -58,10 +59,6 @@ def tis_gaussian(LD_tis, LD_yt, wT):
     sd = np.array([sd_pos, sd_neg])
 
     return [pi, mu, sd]
-
-##########################################################################################
-######################################--PRIVATE--#########################################
-##########################################################################################
 
 def tis_pos_neg(tis, y, wT):
     '''
