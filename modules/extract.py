@@ -42,7 +42,7 @@ def extract_features(seq_records):
             orf = orf_set[0]
             if len(orf) < 60: continue
             
-            # FEATURES (TRI, HEX, TIS, GC)
+            # FEATURES (TRI, HEX, TIS, LEN, GC)
             _tri.append(extract_codon_usage(seq, 3))
             _hex.append(extract_codon_usage(seq, 6))
             _tis.append(extract_tis_frame(record, start_pos=orf[0]))
@@ -50,7 +50,7 @@ def extract_features(seq_records):
             _gc.append(extract_gc_content(seq))
     
     feat = [_tri, _hex, _tis, _len, _gc]
-    return np.array(feat)
+    return feat
 
 def extract_nn_training_features(seq_records, OFFSET=30):    
     _tri, _hex, _tis, _len, _gc = [], [], [], [], []
@@ -59,7 +59,7 @@ def extract_nn_training_features(seq_records, OFFSET=30):
     for record in seq_records:
         seq = record.seq[OFFSET:-OFFSET]
                 
-        # FEATURES (TRI, HEX, TIS, GC)
+        # FEATURES (TRI, HEX, TIS, LEN, GC)
         _tri.append(extract_codon_usage(seq, 3))
         _hex.append(extract_codon_usage(seq, 6))
         _tis.append(extract_tis_frame(record, start_pos=OFFSET))

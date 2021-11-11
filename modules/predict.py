@@ -8,7 +8,7 @@ from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 
 from modules.preprocess import preprocess_genome
-from modules.extract import extract_features
+from modules.extract import extract_features, extract_nn_training_features
 from modules.utils import extract_longest_orf, load_params, load_model
 
 import numpy as np
@@ -22,34 +22,47 @@ tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
 ########################################--PUBLIC--########################################
 ##########################################################################################
 
-def from_genome(filename, params, model, outfile, n_genomes=None, seq='all', OFFSET=30, LMIN=60):
+def from_genome(filename, params, model, outfile, n_genomes=None, seq='all', OFFSET=30, LMIN=60, email=None):
     # preprocess genome
     CDS, NCS = preprocess_genome(filename=filename,\
-                                   n_genomes=n_genomes, seq=seq, \
-                                   OFFSET=OFFSET, LMIN=LMIN)
+                                 n_genomes=n_genomes, seq=seq, \
+                                 OFFSET=OFFSET, LMIN=LMIN, email=email)
     
     # seqrecord2fasta
-    tmp_file = "./input/tmp.fna"
-    SEQ = CDS + NCS
-    seqrecord2fasta(tmp_file, SEQ)
+    records = CDS + NCS
     
-    # from_fasta
-    y_pred = from_fasta(tmp_file, params, model, outfile)
+    # extract features
+    feat, _ = extract_nn_training_features(records)
+
+    # dim red features
+    data = load_params(params)
+    w, p = data[0:3], data[3:]
+    
+    nn_input = dimensional_reduction(feat, w, p)
+    
+    # predict + convert to 1s or 0s
+    predictions = predict(nn_input, model)
+    y_pred = [1 if val >= 0.5 else 0 for val in predictions]
+    
+    # save output fasta file
+    save_predictions(outfile, y_pred, records)
     
     return y_pred
 
-
+'''NEED TO FIX THIS FUNCTION'''
 def from_fasta(filename, params, model, outfile):   
     # extract sequences from fasta file
     records = fasta2seqrecords(filename)
     
-    # extract features
+    # extract features 
+    '''NEED TO FIX THIS FUNCTION SPECIFICALLY'''
     feat = extract_features(records)
     
     # dim red features
     data = load_params(params)
     w, p = data[0:3], data[3:]
-    nn_input = dimentional_reduction(feat, w, p)
+    
+    nn_input = dimensional_reduction(feat, w, p)
     
     # predict + convert to 1s or 0s
     predictions = predict(nn_input, model)
@@ -63,14 +76,14 @@ def from_fasta(filename, params, model, outfile):
 
 def dimensional_reduction(features, w, p):
     '''
-    INPUT: features (4,), w (3,), p (3,2)
+    INPUT: features (5,), w (3,), p (3,2)
     OUTPUT: reduced_features_nn_input
     
         features: (tri, hex, tis, len, gc)
         w (weights): (wM, wD, wT)
         p (params): ((pi_pos, pi_neg), (mu_pos, mu_neg), (sd_pos, sd_neg))
     '''
-    
+
     # x1 = reduced tri (Monocodon) feature
     x1 = features[0] @ w[0]
     
@@ -89,7 +102,7 @@ def dimensional_reduction(features, w, p):
     # x7 = GC content (doesn't need to be reduced)
     x7 = features[4]
     
-    reduced_features_nn_input = np.stack((x1,x2,x3,x4,x7)).T
+    reduced_features_nn_input = np.stack((x1,x2,x3,x4,x5,x7)).T
     
     return reduced_features_nn_input
 
@@ -126,6 +139,7 @@ def predict(data, model):
     prediction = model.predict(data)
     return prediction
     
+'''ADD START, END POSITION OF SEQUENCE IN GENOME IN FASTA HEADER'''
 def save_predictions(outfile, predictions, seq_records):  
     results = []
     
@@ -137,6 +151,7 @@ def save_predictions(outfile, predictions, seq_records):
             results.append(r)
             
     SeqIO.write(results, outfile, "fasta")
+    '''ADD MORE INFO ABOUT NUMBER OF SEQ SAVED'''
     print(f"Saved genome fragments to {outfile}.")
     
 
